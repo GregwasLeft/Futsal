@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALUMNI TS-21-2 - Futsal Schedule</title>
+    <title>Alumni TS-21-2 - Futsal Schedule</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -92,7 +92,7 @@
                 <!-- Schedule Voting Options -->
                 <div>
                     <label class="block text-sm font-medium text-zinc-400 mb-3">Pilih Jadwal</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         
                         <!-- Option 1 -->
                         <label class="relative cursor-pointer">
@@ -148,6 +148,7 @@
                                 </div>
                             </div>
                         </label>
+
                     </div>
                 </div>
 
@@ -156,6 +157,10 @@
                     class="mt-2 w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-red-900/20 flex justify-center items-center gap-2">
                     <span>Ikut Main</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+                <button type="button" id="clearBtn" 
+                    class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center gap-2 mt-1">
+                    <span>Reset Data</span>
                 </button>
             </form>
         </section>
@@ -192,7 +197,7 @@
                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     Daftar Hadir
                 </h2>
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Live Sync Active"></div>
+                <!-- Removed live sync pulse for local storage version -->
             </div>
             
             <div class="overflow-x-auto">
@@ -207,7 +212,7 @@
                     <tbody id="playerListBody" class="divide-y divide-zinc-800/50">
                         <!-- Rows injected by JS -->
                         <tr>
-                            <td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Memuat data dari server...</td>
+                            <td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -216,27 +221,17 @@
 
     </main>
 
-    <!-- Firebase SDK Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global environment variables provided by the system
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'biinmaffo-futsal-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            // Fallback empty config to prevent crash if not in intended env
-            apiKey: "dummy", projectId: "dummy"
-        };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
+    <!-- LocalStorage JS Logic -->
+    <script>
         // Constants
         const MAX_PLAYERS = 15;
         const SCHEDULE_OPTIONS = ['Senin, 20:00', 'Selasa, 20:00', 'Rabu, 20:00', 'Kamis, 20:00', 'Jumat, 20:00'];
+        const STORAGE_KEY = 'futsal_players_data';
 
         // DOM Elements
         const form = document.getElementById('votingForm');
         const submitBtn = document.getElementById('submitBtn');
+        const clearBtn = document.getElementById('clearBtn');
         const playerNameInput = document.getElementById('playerName');
         const formSection = document.getElementById('formSection');
         const quotaWarning = document.getElementById('quotaWarning');
@@ -247,10 +242,9 @@
         const notificationMessage = document.getElementById('notificationMessage');
 
         // State
-        let currentUser = null;
         let currentPlayers = [];
 
-        // Helper: Show Notification instead of alert()
+        // Helper: Show Notification
         window.showNotification = (msg, isError = true) => {
             notificationMessage.textContent = msg;
             notification.classList.remove('hidden');
@@ -262,7 +256,6 @@
                 notification.classList.remove('bg-red-900/50', 'border-red-500', 'text-red-200');
             }
             
-            // Auto hide after 5 seconds
             setTimeout(() => {
                 closeNotification();
             }, 5000);
@@ -273,109 +266,65 @@
         };
 
         // Initialize App
-        async function initApp() {
-            try {
-                // Ignore initialization if config is missing (running locally without context)
-                if (firebaseConfig.apiKey === "dummy") {
-                    console.warn("Firebase config missing. Running in UI-only mode.");
-                    renderMockData();
-                    return;
-                }
-
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                const db = getFirestore(app);
-
-                // Strict Auth Flow
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                currentUser = auth.currentUser;
-                
-                if (!currentUser) {
-                    showNotification("Gagal terhubung ke sistem (Auth Error)");
-                    return;
-                }
-
-                // Setup Firestore Real-time Listener
-                // PATH STRICT RULE: /artifacts/{appId}/public/data/{collectionName}
-                const playersRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
-                
-                // Fetch data without complex queries per rules, process locally
-                onSnapshot(playersRef, (snapshot) => {
-                    const players = [];
-                    snapshot.forEach((doc) => {
-                        players.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    // Sort locally by timestamp (ascending)
-                    players.sort((a, b) => a.timestamp - b.timestamp);
-                    currentPlayers = players;
-                    
-                    updateUI();
-                }, (error) => {
-                    console.error("Firestore error:", error);
-                    showNotification("Gagal memuat data dari server.");
-                });
-
-                // Handle Form Submission
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    
-                    if (!currentUser) return; // Guard clause
-
-                    const name = playerNameInput.value.trim();
-                    const scheduleSelect = document.querySelector('input[name="schedule"]:checked');
-
-                    if (!name) {
-                        showNotification("Silakan masukkan nama Anda.");
-                        return;
-                    }
-                    if (!scheduleSelect) {
-                        showNotification("Silakan pilih jadwal voting Anda.");
-                        return;
-                    }
-
-                    // Double check quota before submitting
-                    if (currentPlayers.length >= MAX_PLAYERS) {
-                        showNotification("Maaf, pendaftaran gagal karena kuota sudah penuh.");
-                        return;
-                    }
-
-                    const selectedSchedule = scheduleSelect.value;
-                    
-                    // Disable button to prevent double submit
-                    const originalBtnText = submitBtn.innerHTML;
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = `<span class="animate-pulse">Menyimpan...</span>`;
-                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-
-                    try {
-                        await addDoc(playersRef, {
-                            name: name,
-                            schedule: selectedSchedule,
-                            timestamp: Date.now() // Use client timestamp for simple sorting
-                        });
-                        
-                        form.reset();
-                        showNotification(`Berhasil bergabung, ${name}!`, false);
-                    } catch (error) {
-                        console.error("Error adding document: ", error);
-                        showNotification("Terjadi kesalahan saat menyimpan data.");
-                    } finally {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                    }
-                });
-
-            } catch (error) {
-                console.error("Initialization error:", error);
-                showNotification("Gagal menginisialisasi aplikasi.");
+        function initApp() {
+            // Load data from LocalStorage
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            if (storedData) {
+                currentPlayers = JSON.parse(storedData);
+            } else {
+                currentPlayers = [];
             }
+            
+            updateUI();
+
+            // Handle Form Submission
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = playerNameInput.value.trim();
+                const scheduleSelect = document.querySelector('input[name="schedule"]:checked');
+
+                if (!name) {
+                    showNotification("Silakan masukkan nama Anda.");
+                    return;
+                }
+                if (!scheduleSelect) {
+                    showNotification("Silakan pilih jadwal voting Anda.");
+                    return;
+                }
+
+                if (currentPlayers.length >= MAX_PLAYERS) {
+                    showNotification("Maaf, pendaftaran gagal karena kuota sudah penuh.");
+                    return;
+                }
+
+                const selectedSchedule = scheduleSelect.value;
+                
+                // Add to array
+                currentPlayers.push({
+                    id: Date.now().toString(),
+                    name: name,
+                    schedule: selectedSchedule,
+                    timestamp: Date.now()
+                });
+
+                // Save to LocalStorage
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(currentPlayers));
+                
+                form.reset();
+                showNotification(`Berhasil bergabung, ${name}!`, false);
+                updateUI();
+            });
+
+            // Handle Reset Data
+            clearBtn.addEventListener('click', () => {
+                if(confirm("Apakah Anda yakin ingin menghapus semua data pendaftaran futsal ini?")) {
+                    currentPlayers = [];
+                    localStorage.removeItem(STORAGE_KEY);
+                    updateUI();
+                    showNotification("Data berhasil di-reset.", false);
+                }
+            });
         }
 
         // Update UI based on data
@@ -467,9 +416,9 @@
                 let badgeClass = "bg-zinc-800 text-zinc-300 border-zinc-700";
                 if(player.schedule.includes('Senin')) badgeClass = "bg-blue-900/30 text-blue-400 border-blue-800";
                 if(player.schedule.includes('Selasa')) badgeClass = "bg-purple-900/30 text-purple-400 border-purple-800";
-                if(player.schedule.includes('Rabu')) badgeClass = "bg-orange-900/30 text-orange-400 border-orange-800";
-                if(player.schedule.includes('Kamis')) badgeClass = "bg-green-900/30 text-green-400 border-green-800";
-                if(player.schedule.includes('Jumat')) badgeClass = "bg-rose-900/30 text-rose-400 border-rose-800";
+                if(player.schedule.includes('Rabu')) badgeClass = "bg-green-900/30 text-green-400 border-green-800";
+                if(player.schedule.includes('Kamis')) badgeClass = "bg-orange-900/30 text-orange-400 border-orange-800";
+                if(player.schedule.includes('Jumat')) badgeClass = "bg-yellow-900/30 text-yellow-400 border-yellow-800";
 
                 tr.innerHTML = `
                     <td class="px-5 py-4 border-b border-zinc-800/50 text-center text-zinc-500 font-mono text-xs">
@@ -488,19 +437,8 @@
             });
         }
 
-        // Mock data for UI development without Firebase env
-        function renderMockData() {
-            currentPlayers = [
-                { id: '1', name: 'Alvaro', schedule: 'Senin, 20:00', timestamp: 1 },
-                { id: '2', name: 'Bastian', schedule: 'Rabu, 20:00', timestamp: 2 },
-                { id: '3', name: 'Carlos', schedule: 'Jumat, 20:00', timestamp: 3 }
-            ];
-            updateUI();
-        }
-
         // Boot
         window.addEventListener('DOMContentLoaded', initApp);
-
     </script>
 </body>
 </html>
