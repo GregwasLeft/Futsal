@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUMNI TS-21-2 - Futsal Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b; /* zinc-950 */
+            color: #f4f4f5; /* zinc-100 */
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ef4444; 
+        }
+        
+        .radio-custom:checked + div {
+            border-color: #ef4444; /* red-500 */
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        .radio-custom:checked + div .radio-dot {
+            background-color: #ef4444;
+            transform: scale(1);
+        }
+        
+        /* Subtle glow effect for headers */
+        .glow-text {
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col items-center p-4 sm:p-6 lg:p-8">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-xl text-center mb-8 mt-4">
+        <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2 uppercase glow-text">
+            ALUMNI TS-21-2 <span class="text-red-600">FC</span>
+        </h1>
+        <p class="text-sm sm:text-base text-zinc-400 font-light tracking-widest border-b border-zinc-800 pb-4 inline-block px-4">
+            SUKI & DEWASA
+        </p>
+    </header>
+
+    <main class="w-full max-w-xl flex flex-col gap-6">
+        
+        <!-- Error/Notification Toast (Hidden by default) -->
+        <div id="notification" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg relative flex items-center justify-between" role="alert">
+            <span id="notificationMessage" class="block sm:inline">Pesan notifikasi di sini.</span>
+            <button onclick="closeNotification()" class="text-red-200 hover:text-white font-bold ml-4">
+                &times;
+            </button>
+        </div>
+
+        <!-- Quota Full Warning -->
+        <div id="quotaWarning" class="hidden bg-red-600 text-white px-4 py-4 rounded-xl shadow-lg shadow-red-900/20 text-center border-2 border-red-500 animate-pulse">
+            <h3 class="font-bold text-lg mb-1">⚠️ KUOTA PENUH</h3>
+            <p class="text-sm opacity-90">Sesi futsal kali ini sudah mencapai batas maksimal 15 pemain.</p>
+        </div>
+
+        <!-- Registration & Voting Form -->
+        <section id="formSection" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
+            <!-- Decorative accent -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-900"></div>
+            
+            <h2 class="text-xl font-bold mb-5 flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                Daftar & Voting Jadwal
+            </h2>
+            
+            <form id="votingForm" class="flex flex-col gap-5">
+                <!-- Name Input -->
+                <div>
+                    <label for="playerName" class="block text-sm font-medium text-zinc-400 mb-2">Nama Pemain</label>
+                    <input type="text" id="playerName" placeholder="Masukkan nama panggilan..." 
+                        class="w-full bg-zinc-950 border border-zinc-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all placeholder-zinc-600"
+                        required maxlength="30">
+                </div>
+
+                <!-- Schedule Voting Options -->
+                <div>
+                    <label class="block text-sm font-medium text-zinc-400 mb-3">Pilih Jadwal</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        
+                        <!-- Option 1 -->
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="schedule" value="Senin, 20:00" class="radio-custom sr-only" required>
+                            <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
+                                <span class="text-sm font-medium">Senin, 20:00</span>
+                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
+                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 2 -->
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="schedule" value="Selasa, 20:00" class="radio-custom sr-only">
+                            <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
+                                <span class="text-sm font-medium">Selasa, 20:00</span>
+                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
+                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 3 -->
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="schedule" value="Rabu, 20:00" class="radio-custom sr-only">
+                            <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
+                                <span class="text-sm font-medium">Rabu, 20:00</span>
+                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
+                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 4 -->
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="schedule" value="Kamis, 20:00" class="radio-custom sr-only">
+                            <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
+                                <span class="text-sm font-medium">Kamis, 20:00</span>
+                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
+                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 5 -->
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="schedule" value="Jumat, 20:00" class="radio-custom sr-only">
+                            <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
+                                <span class="text-sm font-medium">Jumat, 20:00</span>
+                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
+                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" 
+                    class="mt-2 w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-red-900/20 flex justify-center items-center gap-2">
+                    <span>Ikut Main</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </form>
+        </section>
+
+        <!-- Stats & Tally Section -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Voting Result Tally -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-sm font-bold text-zinc-400 mb-4 uppercase tracking-wider">Hasil Voting Sementara</h2>
+                <div id="tallyContainer" class="flex flex-col gap-3">
+                    <!-- Tally rows injected here by JS -->
+                    <div class="text-zinc-500 text-sm text-center py-4 italic">Belum ada suara...</div>
+                </div>
+            </div>
+
+            <!-- Total Players Card -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl flex flex-col justify-center items-center relative overflow-hidden">
+                 <div class="absolute -right-10 -bottom-10 opacity-5">
+                    <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path><path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"></path></svg>
+                </div>
+                <h2 class="text-sm font-bold text-zinc-400 mb-2 uppercase tracking-wider relative z-10">Total Pemain</h2>
+                <div class="flex items-baseline gap-1 relative z-10">
+                    <span id="totalPlayersCount" class="text-5xl font-black text-white">0</span>
+                    <span class="text-xl text-zinc-500 font-medium">/ 15</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player List Section -->
+        <section class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl mb-8">
+            <div class="bg-zinc-950/50 p-4 border-b border-zinc-800 flex justify-between items-center">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Daftar Hadir
+                </h2>
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Live Sync Active"></div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-zinc-900 text-zinc-400 border-b border-zinc-800">
+                        <tr>
+                            <th scope="col" class="px-5 py-3 font-semibold w-12 text-center">#</th>
+                            <th scope="col" class="px-5 py-3 font-semibold">Nama Pemain</th>
+                            <th scope="col" class="px-5 py-3 font-semibold text-right">Pilihan Jadwal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playerListBody" class="divide-y divide-zinc-800/50">
+                        <!-- Rows injected by JS -->
+                        <tr>
+                            <td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Memuat data dari server...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global environment variables provided by the system
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'biinmaffo-futsal-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // Fallback empty config to prevent crash if not in intended env
+            apiKey: "dummy", projectId: "dummy"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Constants
+        const MAX_PLAYERS = 15;
+        const SCHEDULE_OPTIONS = ['Senin, 20:00', 'Selasa, 20:00', 'Rabu, 20:00', 'Kamis, 20:00', 'Jumat, 20:00'];
+
+        // DOM Elements
+        const form = document.getElementById('votingForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const playerNameInput = document.getElementById('playerName');
+        const formSection = document.getElementById('formSection');
+        const quotaWarning = document.getElementById('quotaWarning');
+        const tallyContainer = document.getElementById('tallyContainer');
+        const totalPlayersCount = document.getElementById('totalPlayersCount');
+        const playerListBody = document.getElementById('playerListBody');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notificationMessage');
+
+        // State
+        let currentUser = null;
+        let currentPlayers = [];
+
+        // Helper: Show Notification instead of alert()
+        window.showNotification = (msg, isError = true) => {
+            notificationMessage.textContent = msg;
+            notification.classList.remove('hidden');
+            if(isError) {
+                notification.classList.add('bg-red-900/50', 'border-red-500', 'text-red-200');
+                notification.classList.remove('bg-green-900/50', 'border-green-500', 'text-green-200');
+            } else {
+                notification.classList.add('bg-green-900/50', 'border-green-500', 'text-green-200');
+                notification.classList.remove('bg-red-900/50', 'border-red-500', 'text-red-200');
+            }
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                closeNotification();
+            }, 5000);
+        };
+
+        window.closeNotification = () => {
+            notification.classList.add('hidden');
+        };
+
+        // Initialize App
+        async function initApp() {
+            try {
+                // Ignore initialization if config is missing (running locally without context)
+                if (firebaseConfig.apiKey === "dummy") {
+                    console.warn("Firebase config missing. Running in UI-only mode.");
+                    renderMockData();
+                    return;
+                }
+
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+
+                // Strict Auth Flow
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                currentUser = auth.currentUser;
+                
+                if (!currentUser) {
+                    showNotification("Gagal terhubung ke sistem (Auth Error)");
+                    return;
+                }
+
+                // Setup Firestore Real-time Listener
+                // PATH STRICT RULE: /artifacts/{appId}/public/data/{collectionName}
+                const playersRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
+                
+                // Fetch data without complex queries per rules, process locally
+                onSnapshot(playersRef, (snapshot) => {
+                    const players = [];
+                    snapshot.forEach((doc) => {
+                        players.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Sort locally by timestamp (ascending)
+                    players.sort((a, b) => a.timestamp - b.timestamp);
+                    currentPlayers = players;
+                    
+                    updateUI();
+                }, (error) => {
+                    console.error("Firestore error:", error);
+                    showNotification("Gagal memuat data dari server.");
+                });
+
+                // Handle Form Submission
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    if (!currentUser) return; // Guard clause
+
+                    const name = playerNameInput.value.trim();
+                    const scheduleSelect = document.querySelector('input[name="schedule"]:checked');
+
+                    if (!name) {
+                        showNotification("Silakan masukkan nama Anda.");
+                        return;
+                    }
+                    if (!scheduleSelect) {
+                        showNotification("Silakan pilih jadwal voting Anda.");
+                        return;
+                    }
+
+                    // Double check quota before submitting
+                    if (currentPlayers.length >= MAX_PLAYERS) {
+                        showNotification("Maaf, pendaftaran gagal karena kuota sudah penuh.");
+                        return;
+                    }
+
+                    const selectedSchedule = scheduleSelect.value;
+                    
+                    // Disable button to prevent double submit
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<span class="animate-pulse">Menyimpan...</span>`;
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                    try {
+                        await addDoc(playersRef, {
+                            name: name,
+                            schedule: selectedSchedule,
+                            timestamp: Date.now() // Use client timestamp for simple sorting
+                        });
+                        
+                        form.reset();
+                        showNotification(`Berhasil bergabung, ${name}!`, false);
+                    } catch (error) {
+                        console.error("Error adding document: ", error);
+                        showNotification("Terjadi kesalahan saat menyimpan data.");
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    }
+                });
+
+            } catch (error) {
+                console.error("Initialization error:", error);
+                showNotification("Gagal menginisialisasi aplikasi.");
+            }
+        }
+
+        // Update UI based on data
+        function updateUI() {
+            const totalCount = currentPlayers.length;
+            totalPlayersCount.textContent = totalCount;
+
+            // 1. Handle Quota limits
+            if (totalCount >= MAX_PLAYERS) {
+                formSection.classList.add('opacity-50', 'pointer-events-none');
+                quotaWarning.classList.remove('hidden');
+            } else {
+                formSection.classList.remove('opacity-50', 'pointer-events-none');
+                quotaWarning.classList.add('hidden');
+            }
+
+            // 2. Tally Votes
+            const tallies = {
+                'Senin, 20:00': 0,
+                'Selasa, 20:00': 0,
+                'Rabu, 20:00': 0,
+                'Kamis, 20:00': 0,
+                'Jumat, 20:00': 0
+            };
+            
+            currentPlayers.forEach(p => {
+                if(tallies[p.schedule] !== undefined) {
+                    tallies[p.schedule]++;
+                }
+            });
+
+            tallyContainer.innerHTML = '';
+            
+            // Find max votes to highlight the winner
+            let maxVotes = 0;
+            for (let s in tallies) {
+                if (tallies[s] > maxVotes) maxVotes = tallies[s];
+            }
+
+            SCHEDULE_OPTIONS.forEach(schedule => {
+                const votes = tallies[schedule];
+                const percentage = totalCount > 0 ? (votes / totalCount) * 100 : 0;
+                const isLeading = votes === maxVotes && votes > 0;
+                
+                const row = document.createElement('div');
+                row.className = 'relative pt-1';
+                row.innerHTML = `
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block py-1 uppercase ${isLeading ? 'text-red-400' : 'text-zinc-400'}">
+                                ${schedule}
+                            </span>
+                            ${isLeading ? '<span class="ml-2 text-[10px] bg-red-900/50 text-red-300 px-2 py-0.5 rounded border border-red-500/30">Terbanyak</span>' : ''}
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-semibold inline-block text-white">
+                                ${votes} Suara
+                            </span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-2 text-xs flex rounded-full bg-zinc-800">
+                        <div style="width:${percentage}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${isLeading ? 'bg-red-500' : 'bg-zinc-600'} transition-all duration-500"></div>
+                    </div>
+                `;
+                tallyContainer.appendChild(row);
+            });
+
+            if(totalCount === 0) {
+                 tallyContainer.innerHTML = '<div class="text-zinc-500 text-sm text-center py-4 italic">Belum ada suara masuk.</div>';
+            }
+
+            // 3. Render Player List
+            playerListBody.innerHTML = '';
+            
+            if (totalCount === 0) {
+                playerListBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Belum ada pemain yang mendaftar. Jadilah yang pertama!</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            currentPlayers.forEach((player, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-zinc-800/50 transition-colors group";
+                
+                // Badge color based on schedule chosen
+                let badgeClass = "bg-zinc-800 text-zinc-300 border-zinc-700";
+                if(player.schedule.includes('Senin')) badgeClass = "bg-blue-900/30 text-blue-400 border-blue-800";
+                if(player.schedule.includes('Selasa')) badgeClass = "bg-purple-900/30 text-purple-400 border-purple-800";
+                if(player.schedule.includes('Rabu')) badgeClass = "bg-orange-900/30 text-orange-400 border-orange-800";
+                if(player.schedule.includes('Kamis')) badgeClass = "bg-green-900/30 text-green-400 border-green-800";
+                if(player.schedule.includes('Jumat')) badgeClass = "bg-rose-900/30 text-rose-400 border-rose-800";
+
+                tr.innerHTML = `
+                    <td class="px-5 py-4 border-b border-zinc-800/50 text-center text-zinc-500 font-mono text-xs">
+                        ${index + 1}
+                    </td>
+                    <td class="px-5 py-4 border-b border-zinc-800/50">
+                        <p class="text-white font-medium capitalize">${player.name}</p>
+                    </td>
+                    <td class="px-5 py-4 border-b border-zinc-800/50 text-right">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium border ${badgeClass}">
+                            ${player.schedule}
+                        </span>
+                    </td>
+                `;
+                playerListBody.appendChild(tr);
+            });
+        }
+
+        // Mock data for UI development without Firebase env
+        function renderMockData() {
+            currentPlayers = [
+                { id: '1', name: 'Alvaro', schedule: 'Senin, 20:00', timestamp: 1 },
+                { id: '2', name: 'Bastian', schedule: 'Rabu, 20:00', timestamp: 2 },
+                { id: '3', name: 'Carlos', schedule: 'Jumat, 20:00', timestamp: 3 }
+            ];
+            updateUI();
+        }
+
+        // Boot
+        window.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
