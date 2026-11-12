@@ -60,7 +60,6 @@
                     <label class="block text-sm font-medium text-zinc-400 mb-1">Pilih Jadwal (Bisa lebih dari 1)</label>
                     <p class="text-xs text-zinc-500 mb-3 italic">*Centang hari apa saja Anda bisa hadir</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="schedule" value="Senin, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
@@ -145,7 +144,6 @@
                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     Daftar Hadir
                 </h2>
-                <!-- Indikator Live Sync Firebase -->
                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Live Sync Active"></div>
             </div>
             
@@ -159,34 +157,19 @@
                         </tr>
                     </thead>
                     <tbody id="playerListBody" class="divide-y divide-zinc-800/50">
-                        <tr><td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Terhubung ke database...</td></tr>
+                        <tr><td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Menghubungkan ke database...</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <!-- FIREBASE INTEGRATION SCRIPT -->
-    <script type="module">
-        // Import Firebase SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-        // ==========================================
-        // ⚠️ MASUKKAN CONFIG FIREBASE ANDA DI SINI
-        // ==========================================
-        const firebaseConfig = {
-            const firebaseConfig = {
-            apiKey: "AIzaSyBYRlPaN2unRETzB6qA7QZwkvtQ76aPtBA",
-            authDomain: "futsal-aeb7e.firebaseapp.com",
-            projectId: "futsal-aeb7e",
-            storageBucket: "futsal-aeb7e.firebasestorage.app",
-            messagingSenderId: "823688935594",
-            appId: "1:823688935594:web:ede15ae4eac6670e3ab8d3"
-};
-        };
-        // ==========================================
-
+    <!-- FIREBASE REST API SCRIPT (Tanpa Setup Config yang Rumit) -->
+    <script>
+        // Menggunakan Project ID dari screenshot Anda: "futsal-aeb7e"
+        const PROJECT_ID = "futsal-aeb7e";
+        const FIRESTORE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/players`;
+        
         const MAX_PLAYERS = 15;
         const SCHEDULE_OPTIONS = ['Senin, 20:00', 'Selasa, 20:00', 'Rabu, 20:00', 'Kamis, 20:00', 'Jumat, 20:00'];
         const ADMIN_PIN = "123456"; 
@@ -219,26 +202,35 @@
         };
         window.closeNotification = () => notification.classList.add('hidden');
 
-        try {
-            // Initialize Firebase
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            const playersRef = collection(db, 'players');
-            const q = query(playersRef, orderBy("timestamp", "asc"));
-
-            // Real-time listener (Data langsung berubah tanpa perlu di-refresh)
-            onSnapshot(q, (snapshot) => {
+        async function fetchPlayers() {
+            try {
+                const response = await fetch(FIRESTORE_URL);
+                const result = await response.json();
+                
                 currentPlayers = [];
-                snapshot.forEach((doc) => {
-                    currentPlayers.push({ id: doc.id, ...doc.data() });
-                });
+                if (result.documents) {
+                    result.documents.forEach(doc => {
+                        const fields = doc.fields;
+                        const id = doc.name.split('/').pop();
+                        currentPlayers.push({
+                            id: id,
+                            name: fields.name ? fields.name.stringValue : '',
+                            schedule: fields.schedule ? fields.schedule.stringValue : '',
+                            timestamp: fields.timestamp ? Number(fields.timestamp.integerValue) : 0
+                        });
+                    });
+                }
+                currentPlayers.sort((a, b) => a.timestamp - b.timestamp);
                 updateUI();
-            }, (error) => {
-                console.error("Error mengambil data real-time: ", error);
-                playerListBody.innerHTML = '<tr><td colspan="3" class="px-5 py-8 text-center text-red-500">Gagal terhubung ke Database. Periksa Config Firebase.</td></tr>';
-            });
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+            }
+        }
 
-            // Submit Data
+        function initApp() {
+            fetchPlayers();
+            setInterval(fetchPlayers, 4000); // Sinkronisasi otomatis setiap 4 detik
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const name = playerNameInput.value.trim();
@@ -262,17 +254,27 @@
                 submitBtn.innerHTML = `<span class="animate-pulse">Mengirim...</span>`;
                 submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
+                // Format data untuk Firestore REST API
+                const payload = {
+                    fields: {
+                        name: { stringValue: name },
+                        schedule: { stringValue: joinedSchedule },
+                        timestamp: { integerValue: Date.now().toString() }
+                    }
+                };
+
                 try {
-                    await addDoc(playersRef, {
-                        name: name,
-                        schedule: joinedSchedule,
-                        timestamp: Date.now()
+                    await fetch(FIRESTORE_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
                     });
                     form.reset();
                     showNotification(`Berhasil bergabung, ${name}!`, false);
+                    fetchPlayers();
                 } catch (error) {
-                    console.error("Error saving: ", error);
-                    showNotification("Gagal menyimpan. Pastikan Aturan (Rules) Firestore sudah true.");
+                    console.error("Gagal menyimpan: ", error);
+                    showNotification("Gagal menyimpan data.");
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
@@ -280,7 +282,6 @@
                 }
             });
 
-            // Reset Data (Hapus Semua)
             clearBtn.addEventListener('click', async () => {
                 const enteredPin = prompt("Masukkan PIN Admin untuk mereset data:");
                 if (enteredPin === null) return; 
@@ -291,10 +292,11 @@
                 if(confirm("Yakin ingin menghapus SEMUA daftar pemain?")) {
                     clearBtn.innerHTML = "Menghapus...";
                     try {
-                        const querySnapshot = await getDocs(playersRef);
-                        querySnapshot.forEach(async (document) => {
-                            await deleteDoc(doc(db, "players", document.id));
-                        });
+                        for (let player of currentPlayers) {
+                            await fetch(`${FIRESTORE_URL}/${player.id}`, { method: 'DELETE' });
+                        }
+                        currentPlayers = [];
+                        updateUI();
                         showNotification("Semua data berhasil dihapus.", false);
                     } catch (error) {
                         showNotification("Gagal mereset data.");
@@ -302,9 +304,6 @@
                     clearBtn.innerHTML = "<span>Reset Data</span>";
                 }
             });
-
-        } catch(err) {
-            console.error(err);
         }
 
         function updateUI() {
@@ -385,6 +384,8 @@
                 `;
             });
         }
+
+        window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
