@@ -332,9 +332,23 @@
                 }
             });
 
-            // Handle Reset Data (Menghapus seluruh baris di Sheet via DELETE request)
+            // Handle Reset Data (Hanya Admin dengan PIN)
             clearBtn.addEventListener('click', async () => {
-                if(confirm("Yakin ingin menghapus semua data pendaftaran?")) {
+                // PIN Admin (Ganti angka ini sesuai keinginan Anda)
+                const ADMIN_PIN = "212"; 
+                
+                const enteredPin = prompt("Masukkan PIN Admin untuk mereset data:");
+                
+                if (enteredPin === null) {
+                    return; // Dibatalkan
+                }
+                
+                if (enteredPin !== ADMIN_PIN) {
+                    showNotification("PIN Salah! Anda tidak memiliki akses untuk menghapus data.");
+                    return;
+                }
+
+                if(confirm("PIN Benar. Yakin ingin menghapus semua data pendaftaran?")) {
                     clearBtn.innerHTML = "Menghapus...";
                     try {
                         await fetch(API_URL + '/all', { method: 'DELETE' });
