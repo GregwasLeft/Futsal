@@ -12,31 +12,21 @@
             background-color: #09090b; /* zinc-950 */
             color: #f4f4f5; /* zinc-100 */
         }
-        /* Custom scrollbar for webkit */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #18181b; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3f3f46; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #ef4444; 
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
         
-        .radio-custom:checked + div {
-            border-color: #ef4444; /* red-500 */
+        /* Checkbox Custom Styles */
+        .checkbox-custom:checked + div {
+            border-color: #ef4444;
             background-color: rgba(239, 68, 68, 0.1);
         }
-        .radio-custom:checked + div .radio-dot {
-            background-color: #ef4444;
+        .checkbox-custom:checked + div .check-icon {
+            opacity: 1;
             transform: scale(1);
         }
         
-        /* Subtle glow effect for headers */
         .glow-text {
             text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
         }
@@ -44,7 +34,6 @@
 </head>
 <body class="min-h-screen antialiased flex flex-col items-center p-4 sm:p-6 lg:p-8">
 
-    <!-- Header Section -->
     <header class="w-full max-w-xl text-center mb-8 mt-4">
         <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2 uppercase glow-text">
             ALUMNI TS-21-2 <span class="text-red-600">FC</span>
@@ -56,23 +45,17 @@
 
     <main class="w-full max-w-xl flex flex-col gap-6">
         
-        <!-- Error/Notification Toast (Hidden by default) -->
         <div id="notification" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg relative flex items-center justify-between" role="alert">
             <span id="notificationMessage" class="block sm:inline">Pesan notifikasi di sini.</span>
-            <button onclick="closeNotification()" class="text-red-200 hover:text-white font-bold ml-4">
-                &times;
-            </button>
+            <button onclick="closeNotification()" class="text-red-200 hover:text-white font-bold ml-4">&times;</button>
         </div>
 
-        <!-- Quota Full Warning -->
         <div id="quotaWarning" class="hidden bg-red-600 text-white px-4 py-4 rounded-xl shadow-lg shadow-red-900/20 text-center border-2 border-red-500 animate-pulse">
             <h3 class="font-bold text-lg mb-1">⚠️ KUOTA PENUH</h3>
             <p class="text-sm opacity-90">Sesi futsal kali ini sudah mencapai batas maksimal 15 pemain.</p>
         </div>
 
-        <!-- Registration & Voting Form -->
         <section id="formSection" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
-            <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-900"></div>
             
             <h2 class="text-xl font-bold mb-5 flex items-center gap-2">
@@ -81,7 +64,6 @@
             </h2>
             
             <form id="votingForm" class="flex flex-col gap-5">
-                <!-- Name Input -->
                 <div>
                     <label for="playerName" class="block text-sm font-medium text-zinc-400 mb-2">Nama Pemain</label>
                     <input type="text" id="playerName" placeholder="Masukkan nama panggilan..." 
@@ -89,98 +71,85 @@
                         required maxlength="30">
                 </div>
 
-                <!-- Schedule Voting Options -->
                 <div>
-                    <label class="block text-sm font-medium text-zinc-400 mb-3">Pilih Jadwal</label>
+                    <label class="block text-sm font-medium text-zinc-400 mb-1">Pilih Jadwal (Bisa lebih dari 1)</label>
+                    <p class="text-xs text-zinc-500 mb-3 italic">*Centang hari apa saja Anda bisa hadir</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         
-                        <!-- Option 1 -->
+                        <!-- Checkbox Options -->
                         <label class="relative cursor-pointer">
-                            <input type="radio" name="schedule" value="Senin, 20:00" class="radio-custom sr-only" required>
+                            <input type="checkbox" name="schedule" value="Senin, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
                                 <span class="text-sm font-medium">Senin, 20:00</span>
-                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
-                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                <div class="w-5 h-5 rounded border border-zinc-500 flex items-center justify-center bg-zinc-900">
+                                    <svg class="check-icon w-3.5 h-3.5 text-white opacity-0 transform scale-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                             </div>
                         </label>
 
-                        <!-- Option 2 -->
                         <label class="relative cursor-pointer">
-                            <input type="radio" name="schedule" value="Selasa, 20:00" class="radio-custom sr-only">
+                            <input type="checkbox" name="schedule" value="Selasa, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
                                 <span class="text-sm font-medium">Selasa, 20:00</span>
-                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
-                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                <div class="w-5 h-5 rounded border border-zinc-500 flex items-center justify-center bg-zinc-900">
+                                    <svg class="check-icon w-3.5 h-3.5 text-white opacity-0 transform scale-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                             </div>
                         </label>
 
-                        <!-- Option 3 -->
                         <label class="relative cursor-pointer">
-                            <input type="radio" name="schedule" value="Rabu, 20:00" class="radio-custom sr-only">
+                            <input type="checkbox" name="schedule" value="Rabu, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
                                 <span class="text-sm font-medium">Rabu, 20:00</span>
-                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
-                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                <div class="w-5 h-5 rounded border border-zinc-500 flex items-center justify-center bg-zinc-900">
+                                    <svg class="check-icon w-3.5 h-3.5 text-white opacity-0 transform scale-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                             </div>
                         </label>
 
-                        <!-- Option 4 -->
                         <label class="relative cursor-pointer">
-                            <input type="radio" name="schedule" value="Kamis, 20:00" class="radio-custom sr-only">
+                            <input type="checkbox" name="schedule" value="Kamis, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
                                 <span class="text-sm font-medium">Kamis, 20:00</span>
-                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
-                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                <div class="w-5 h-5 rounded border border-zinc-500 flex items-center justify-center bg-zinc-900">
+                                    <svg class="check-icon w-3.5 h-3.5 text-white opacity-0 transform scale-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                             </div>
                         </label>
 
-                        <!-- Option 5 -->
                         <label class="relative cursor-pointer">
-                            <input type="radio" name="schedule" value="Jumat, 20:00" class="radio-custom sr-only">
+                            <input type="checkbox" name="schedule" value="Jumat, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
                                 <span class="text-sm font-medium">Jumat, 20:00</span>
-                                <div class="w-4 h-4 rounded-full border border-zinc-500 flex items-center justify-center">
-                                    <div class="radio-dot w-2 h-2 rounded-full bg-transparent transform scale-0 transition-transform"></div>
+                                <div class="w-5 h-5 rounded border border-zinc-500 flex items-center justify-center bg-zinc-900">
+                                    <svg class="check-icon w-3.5 h-3.5 text-white opacity-0 transform scale-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                             </div>
                         </label>
-
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" id="submitBtn" 
-                    class="mt-2 w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-red-900/20 flex justify-center items-center gap-2">
+                <button type="submit" id="submitBtn" class="mt-2 w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-red-900/20 flex justify-center items-center gap-2">
                     <span>Ikut Main</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
-                <button type="button" id="clearBtn" 
-                    class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center gap-2 mt-1">
+                <button type="button" id="clearBtn" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center gap-2 mt-1">
                     <span>Reset Data</span>
                 </button>
             </form>
         </section>
 
-        <!-- Stats & Tally Section -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Voting Result Tally -->
             <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl">
                 <h2 class="text-sm font-bold text-zinc-400 mb-4 uppercase tracking-wider">Hasil Voting Sementara</h2>
                 <div id="tallyContainer" class="flex flex-col gap-3">
-                    <!-- Tally rows injected here by JS -->
                     <div class="text-zinc-500 text-sm text-center py-4 italic">Belum ada suara...</div>
                 </div>
             </div>
 
-            <!-- Total Players Card -->
             <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl flex flex-col justify-center items-center relative overflow-hidden">
                  <div class="absolute -right-10 -bottom-10 opacity-5">
-                    <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path><path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"></path></svg>
+                    <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
                 </div>
                 <h2 class="text-sm font-bold text-zinc-400 mb-2 uppercase tracking-wider relative z-10">Total Pemain</h2>
                 <div class="flex items-baseline gap-1 relative z-10">
@@ -190,14 +159,12 @@
             </div>
         </section>
 
-        <!-- Player List Section -->
         <section class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl mb-8">
             <div class="bg-zinc-950/50 p-4 border-b border-zinc-800 flex justify-between items-center">
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     Daftar Hadir
                 </h2>
-                <!-- Removed live sync pulse for local storage version -->
             </div>
             
             <div class="overflow-x-auto">
@@ -210,26 +177,19 @@
                         </tr>
                     </thead>
                     <tbody id="playerListBody" class="divide-y divide-zinc-800/50">
-                        <!-- Rows injected by JS -->
-                        <tr>
-                            <td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Memuat data...</td>
-                        </tr>
+                        <tr><td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
     </main>
-        <!-- Script dengan SheetDB Integration -->
+
     <script>
-        // --- KONFIGURASI API ---
         const API_URL = 'https://sheetdb.io/api/v1/f473ctxjsudjd'; 
-        
-        // Constants
         const MAX_PLAYERS = 15;
         const SCHEDULE_OPTIONS = ['Senin, 20:00', 'Selasa, 20:00', 'Rabu, 20:00', 'Kamis, 20:00', 'Jumat, 20:00'];
+        const ADMIN_PIN = "123456"; 
 
-        // DOM Elements
         const form = document.getElementById('votingForm');
         const submitBtn = document.getElementById('submitBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -242,10 +202,8 @@
         const notification = document.getElementById('notification');
         const notificationMessage = document.getElementById('notificationMessage');
 
-        // State
         let currentPlayers = [];
 
-        // Helper: Show Notification
         window.showNotification = (msg, isError = true) => {
             notificationMessage.textContent = msg;
             notification.classList.remove('hidden');
@@ -261,7 +219,6 @@
 
         window.closeNotification = () => notification.classList.add('hidden');
 
-        // Fetch data dari SheetDB
         async function fetchPlayers() {
             try {
                 const response = await fetch(API_URL);
@@ -270,26 +227,28 @@
                 updateUI();
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showNotification("Gagal mengambil data dari server.");
             }
         }
 
-        // Initialize App
         function initApp() {
-            fetchPlayers(); // Ambil data saat pertama buka
-            
-            // Atur polling (refresh data otomatis setiap 5 detik agar real-time)
+            fetchPlayers(); 
             setInterval(fetchPlayers, 5000);
 
-            // Handle Form Submission
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const name = playerNameInput.value.trim();
-                const scheduleSelect = document.querySelector('input[name="schedule"]:checked');
-
-                if (!name || !scheduleSelect) {
-                    showNotification("Silakan lengkapi nama dan jadwal.");
+                
+                // Ambil SEMUA jadwal yang dicentang
+                const checkedBoxes = document.querySelectorAll('input[name="schedule"]:checked');
+                
+                if (!name) {
+                    showNotification("Silakan masukkan nama Anda.");
+                    return;
+                }
+                
+                if (checkedBoxes.length === 0) {
+                    showNotification("Silakan pilih minimal satu jadwal.");
                     return;
                 }
 
@@ -298,7 +257,13 @@
                     return;
                 }
 
-                // Ubah status tombol loading
+                // Gabungkan jadwal yang dipilih dengan koma (contoh: "Senin, 20:00 | Rabu, 20:00")
+                let selectedSchedules = [];
+                checkedBoxes.forEach((cb) => {
+                    selectedSchedules.push(cb.value);
+                });
+                const joinedSchedule = selectedSchedules.join(" | ");
+
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = `<span class="animate-pulse">Mengirim...</span>`;
@@ -307,12 +272,11 @@
                 const newPlayer = {
                     id: Date.now().toString(),
                     name: name,
-                    schedule: scheduleSelect.value,
+                    schedule: joinedSchedule,
                     timestamp: Date.now().toString()
                 };
 
                 try {
-                    // POST data ke SheetDB
                     await fetch(API_URL, {
                         method: 'POST',
                         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
@@ -321,7 +285,7 @@
                     
                     form.reset();
                     showNotification(`Berhasil bergabung, ${name}!`, false);
-                    fetchPlayers(); // Refresh data langsung
+                    fetchPlayers(); 
                 } catch (error) {
                     console.error("Error saving data:", error);
                     showNotification("Terjadi kesalahan saat menyimpan data.");
@@ -332,19 +296,13 @@
                 }
             });
 
-            // Handle Reset Data (Hanya Admin dengan PIN)
             clearBtn.addEventListener('click', async () => {
-                // PIN Admin (Ganti angka ini sesuai keinginan Anda)
-                const ADMIN_PIN = "212"; 
-                
                 const enteredPin = prompt("Masukkan PIN Admin untuk mereset data:");
                 
-                if (enteredPin === null) {
-                    return; // Dibatalkan
-                }
+                if (enteredPin === null) return; 
                 
                 if (enteredPin !== ADMIN_PIN) {
-                    showNotification("PIN Salah! Anda tidak memiliki akses untuk menghapus data.");
+                    showNotification("PIN Salah! Anda tidak memiliki akses.");
                     return;
                 }
 
@@ -363,7 +321,6 @@
             });
         }
 
-        // Fungsi Update UI 
         function updateUI() {
             const totalCount = currentPlayers.length;
             totalPlayersCount.textContent = totalCount;
@@ -376,8 +333,18 @@
                 quotaWarning.classList.add('hidden');
             }
 
+            // Hitung suara yang masuk walau satu orang memilih banyak
             const tallies = { 'Senin, 20:00': 0, 'Selasa, 20:00': 0, 'Rabu, 20:00': 0, 'Kamis, 20:00': 0, 'Jumat, 20:00': 0 };
-            currentPlayers.forEach(p => { if(tallies[p.schedule] !== undefined) tallies[p.schedule]++; });
+            
+            currentPlayers.forEach(p => { 
+                if (p.schedule) {
+                    // Pecah kembali jadwal yang digabung pakai " | "
+                    const chosen = p.schedule.split(" | ");
+                    chosen.forEach(c => {
+                        if(tallies[c] !== undefined) tallies[c]++;
+                    });
+                }
+            });
 
             tallyContainer.innerHTML = '';
             let maxVotes = 0;
@@ -385,6 +352,7 @@
 
             SCHEDULE_OPTIONS.forEach(schedule => {
                 const votes = tallies[schedule];
+                // Persentase sekarang dihitung dari total pemain, bisa lebih dari 100% jika semua orang milih hari yang sama
                 const percentage = totalCount > 0 ? (votes / totalCount) * 100 : 0;
                 const isLeading = votes === maxVotes && votes > 0;
                 
@@ -413,18 +381,27 @@
             }
 
             currentPlayers.forEach((player, index) => {
-                let badgeClass = "bg-zinc-800 text-zinc-300 border-zinc-700";
-                if(player.schedule.includes('Senin')) badgeClass = "bg-blue-900/30 text-blue-400 border-blue-800";
-                if(player.schedule.includes('Selasa')) badgeClass = "bg-purple-900/30 text-purple-400 border-purple-800";
-                if(player.schedule.includes('Rabu')) badgeClass = "bg-green-900/30 text-green-400 border-green-800";
-                if(player.schedule.includes('Kamis')) badgeClass = "bg-orange-900/30 text-orange-400 border-orange-800";
-                if(player.schedule.includes('Jumat')) badgeClass = "bg-yellow-900/30 text-yellow-400 border-yellow-800";
+                // Tampilkan jadwal yang dipilih dalam bentuk badge kecil terpisah
+                let scheduleBadges = '';
+                if(player.schedule) {
+                    const chosen = player.schedule.split(" | ");
+                    chosen.forEach(c => {
+                        let badgeClass = "bg-zinc-800 text-zinc-300 border-zinc-700";
+                        if(c.includes('Senin')) badgeClass = "bg-blue-900/30 text-blue-400 border-blue-800";
+                        if(c.includes('Selasa')) badgeClass = "bg-purple-900/30 text-purple-400 border-purple-800";
+                        if(c.includes('Rabu')) badgeClass = "bg-green-900/30 text-green-400 border-green-800";
+                        if(c.includes('Kamis')) badgeClass = "bg-orange-900/30 text-orange-400 border-orange-800";
+                        if(c.includes('Jumat')) badgeClass = "bg-yellow-900/30 text-yellow-400 border-yellow-800";
+                        
+                        scheduleBadges += `<span class="inline-block px-2 py-0.5 m-0.5 rounded text-[10px] font-medium border ${badgeClass}">${c.split(',')[0]}</span>`;
+                    });
+                }
 
                 playerListBody.innerHTML += `
                     <tr class="hover:bg-zinc-800/50 transition-colors group">
                         <td class="px-5 py-4 border-b border-zinc-800/50 text-center text-zinc-500 font-mono text-xs">${index + 1}</td>
                         <td class="px-5 py-4 border-b border-zinc-800/50"><p class="text-white font-medium capitalize">${player.name}</p></td>
-                        <td class="px-5 py-4 border-b border-zinc-800/50 text-right"><span class="inline-block px-3 py-1 rounded-full text-xs font-medium border ${badgeClass}">${player.schedule}</span></td>
+                        <td class="px-5 py-4 border-b border-zinc-800/50 text-right max-w-[120px] whitespace-normal">${scheduleBadges}</td>
                     </tr>
                 `;
             });
