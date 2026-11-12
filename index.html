@@ -7,29 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #09090b; /* zinc-950 */
-            color: #f4f4f5; /* zinc-100 */
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f4f4f5; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
-        
-        /* Checkbox Custom Styles */
-        .checkbox-custom:checked + div {
-            border-color: #ef4444;
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-        .checkbox-custom:checked + div .check-icon {
-            opacity: 1;
-            transform: scale(1);
-        }
-        
-        .glow-text {
-            text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-        }
+        .checkbox-custom:checked + div { border-color: #ef4444; background-color: rgba(239, 68, 68, 0.1); }
+        .checkbox-custom:checked + div .check-icon { opacity: 1; transform: scale(1); }
+        .glow-text { text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col items-center p-4 sm:p-6 lg:p-8">
@@ -76,7 +61,6 @@
                     <p class="text-xs text-zinc-500 mb-3 italic">*Centang hari apa saja Anda bisa hadir</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         
-                        <!-- Checkbox Options -->
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="schedule" value="Senin, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
@@ -86,7 +70,6 @@
                                 </div>
                             </div>
                         </label>
-
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="schedule" value="Selasa, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
@@ -96,7 +79,6 @@
                                 </div>
                             </div>
                         </label>
-
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="schedule" value="Rabu, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
@@ -106,7 +88,6 @@
                                 </div>
                             </div>
                         </label>
-
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="schedule" value="Kamis, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
@@ -116,7 +97,6 @@
                                 </div>
                             </div>
                         </label>
-
                         <label class="relative cursor-pointer">
                             <input type="checkbox" name="schedule" value="Jumat, 20:00" class="checkbox-custom sr-only">
                             <div class="border border-zinc-700 rounded-lg p-3 hover:border-zinc-500 transition-colors flex items-center justify-between bg-zinc-950">
@@ -165,6 +145,8 @@
                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     Daftar Hadir
                 </h2>
+                <!-- Indikator Live Sync Firebase -->
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Live Sync Active"></div>
             </div>
             
             <div class="overflow-x-auto">
@@ -177,15 +159,34 @@
                         </tr>
                     </thead>
                     <tbody id="playerListBody" class="divide-y divide-zinc-800/50">
-                        <tr><td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Memuat data...</td></tr>
+                        <tr><td colspan="3" class="px-5 py-8 text-center text-zinc-500 italic">Terhubung ke database...</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <script>
-        const API_URL = 'https://sheetdb.io/api/v1/f473ctxjsudjd'; 
+    <!-- FIREBASE INTEGRATION SCRIPT -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // ==========================================
+        // ⚠️ MASUKKAN CONFIG FIREBASE ANDA DI SINI
+        // ==========================================
+        const firebaseConfig = {
+            const firebaseConfig = {
+            apiKey: "AIzaSyBYRlPaN2unRETzB6qA7QZwkvtQ76aPtBA",
+            authDomain: "futsal-aeb7e.firebaseapp.com",
+            projectId: "futsal-aeb7e",
+            storageBucket: "futsal-aeb7e.firebasestorage.app",
+            messagingSenderId: "823688935594",
+            appId: "1:823688935594:web:ede15ae4eac6670e3ab8d3"
+};
+        };
+        // ==========================================
+
         const MAX_PLAYERS = 15;
         const SCHEDULE_OPTIONS = ['Senin, 20:00', 'Selasa, 20:00', 'Rabu, 20:00', 'Kamis, 20:00', 'Jumat, 20:00'];
         const ADMIN_PIN = "123456"; 
@@ -214,111 +215,96 @@
                 notification.classList.add('bg-green-900/50', 'border-green-500', 'text-green-200');
                 notification.classList.remove('bg-red-900/50', 'border-red-500', 'text-red-200');
             }
-            setTimeout(() => closeNotification(), 5000);
+            setTimeout(() => { notification.classList.add('hidden') }, 5000);
         };
-
         window.closeNotification = () => notification.classList.add('hidden');
 
-        async function fetchPlayers() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                currentPlayers = data;
+        try {
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const playersRef = collection(db, 'players');
+            const q = query(playersRef, orderBy("timestamp", "asc"));
+
+            // Real-time listener (Data langsung berubah tanpa perlu di-refresh)
+            onSnapshot(q, (snapshot) => {
+                currentPlayers = [];
+                snapshot.forEach((doc) => {
+                    currentPlayers.push({ id: doc.id, ...doc.data() });
+                });
                 updateUI();
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }
+            }, (error) => {
+                console.error("Error mengambil data real-time: ", error);
+                playerListBody.innerHTML = '<tr><td colspan="3" class="px-5 py-8 text-center text-red-500">Gagal terhubung ke Database. Periksa Config Firebase.</td></tr>';
+            });
 
-        function initApp() {
-            fetchPlayers(); 
-            setInterval(fetchPlayers, 5000);
-
+            // Submit Data
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const name = playerNameInput.value.trim();
-                
-                // Ambil SEMUA jadwal yang dicentang
                 const checkedBoxes = document.querySelectorAll('input[name="schedule"]:checked');
                 
-                if (!name) {
-                    showNotification("Silakan masukkan nama Anda.");
+                if (!name || checkedBoxes.length === 0) {
+                    showNotification("Nama dan minimal 1 jadwal wajib diisi.");
                     return;
                 }
-                
-                if (checkedBoxes.length === 0) {
-                    showNotification("Silakan pilih minimal satu jadwal.");
-                    return;
-                }
-
                 if (currentPlayers.length >= MAX_PLAYERS) {
-                    showNotification("Maaf, pendaftaran gagal karena kuota sudah penuh.");
+                    showNotification("Maaf, kuota sudah penuh.");
                     return;
                 }
 
-                // Gabungkan jadwal yang dipilih dengan koma (contoh: "Senin, 20:00 | Rabu, 20:00")
                 let selectedSchedules = [];
-                checkedBoxes.forEach((cb) => {
-                    selectedSchedules.push(cb.value);
-                });
+                checkedBoxes.forEach(cb => selectedSchedules.push(cb.value));
                 const joinedSchedule = selectedSchedules.join(" | ");
 
-                const originalBtnText = submitBtn.innerHTML;
+                const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = `<span class="animate-pulse">Mengirim...</span>`;
                 submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-                const newPlayer = {
-                    id: Date.now().toString(),
-                    name: name,
-                    schedule: joinedSchedule,
-                    timestamp: Date.now().toString()
-                };
-
                 try {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ data: [newPlayer] })
+                    await addDoc(playersRef, {
+                        name: name,
+                        schedule: joinedSchedule,
+                        timestamp: Date.now()
                     });
-                    
                     form.reset();
                     showNotification(`Berhasil bergabung, ${name}!`, false);
-                    fetchPlayers(); 
                 } catch (error) {
-                    console.error("Error saving data:", error);
-                    showNotification("Terjadi kesalahan saat menyimpan data.");
+                    console.error("Error saving: ", error);
+                    showNotification("Gagal menyimpan. Pastikan Aturan (Rules) Firestore sudah true.");
                 } finally {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.innerHTML = originalText;
                     submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                 }
             });
 
+            // Reset Data (Hapus Semua)
             clearBtn.addEventListener('click', async () => {
                 const enteredPin = prompt("Masukkan PIN Admin untuk mereset data:");
-                
                 if (enteredPin === null) return; 
-                
                 if (enteredPin !== ADMIN_PIN) {
-                    showNotification("PIN Salah! Anda tidak memiliki akses.");
-                    return;
+                    showNotification("PIN Salah!"); return;
                 }
 
-                if(confirm("PIN Benar. Yakin ingin menghapus semua data pendaftaran?")) {
+                if(confirm("Yakin ingin menghapus SEMUA daftar pemain?")) {
                     clearBtn.innerHTML = "Menghapus...";
                     try {
-                        await fetch(API_URL + '/all', { method: 'DELETE' });
-                        currentPlayers = [];
-                        updateUI();
-                        showNotification("Data berhasil di-reset.", false);
+                        const querySnapshot = await getDocs(playersRef);
+                        querySnapshot.forEach(async (document) => {
+                            await deleteDoc(doc(db, "players", document.id));
+                        });
+                        showNotification("Semua data berhasil dihapus.", false);
                     } catch (error) {
                         showNotification("Gagal mereset data.");
                     }
                     clearBtn.innerHTML = "<span>Reset Data</span>";
                 }
             });
+
+        } catch(err) {
+            console.error(err);
         }
 
         function updateUI() {
@@ -333,16 +319,11 @@
                 quotaWarning.classList.add('hidden');
             }
 
-            // Hitung suara yang masuk walau satu orang memilih banyak
             const tallies = { 'Senin, 20:00': 0, 'Selasa, 20:00': 0, 'Rabu, 20:00': 0, 'Kamis, 20:00': 0, 'Jumat, 20:00': 0 };
-            
             currentPlayers.forEach(p => { 
                 if (p.schedule) {
-                    // Pecah kembali jadwal yang digabung pakai " | "
                     const chosen = p.schedule.split(" | ");
-                    chosen.forEach(c => {
-                        if(tallies[c] !== undefined) tallies[c]++;
-                    });
+                    chosen.forEach(c => { if(tallies[c] !== undefined) tallies[c]++; });
                 }
             });
 
@@ -352,7 +333,6 @@
 
             SCHEDULE_OPTIONS.forEach(schedule => {
                 const votes = tallies[schedule];
-                // Persentase sekarang dihitung dari total pemain, bisa lebih dari 100% jika semua orang milih hari yang sama
                 const percentage = totalCount > 0 ? (votes / totalCount) * 100 : 0;
                 const isLeading = votes === maxVotes && votes > 0;
                 
@@ -381,7 +361,6 @@
             }
 
             currentPlayers.forEach((player, index) => {
-                // Tampilkan jadwal yang dipilih dalam bentuk badge kecil terpisah
                 let scheduleBadges = '';
                 if(player.schedule) {
                     const chosen = player.schedule.split(" | ");
@@ -406,8 +385,6 @@
                 `;
             });
         }
-
-        window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
